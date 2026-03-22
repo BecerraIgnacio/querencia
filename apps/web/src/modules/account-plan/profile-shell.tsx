@@ -2,12 +2,16 @@ import type { MemberProfile } from "@querencia/contracts";
 import { LocalePreferenceForm } from "./locale-preference-form";
 import { PlanBadge } from "./plan-badge";
 import { User } from "lucide-react";
+import { useLocale } from "@/i18n/locale-context";
 
 interface ProfileShellProps {
   profile: MemberProfile;
+  readOnly?: boolean;
 }
 
-export function ProfileShell({ profile }: ProfileShellProps) {
+export function ProfileShell({ profile, readOnly = false }: ProfileShellProps) {
+  const { messages } = useLocale();
+
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-6">
@@ -24,10 +28,21 @@ export function ProfileShell({ profile }: ProfileShellProps) {
 
       <div className="h-px bg-ink" />
 
-      <LocalePreferenceForm
-        currentLocale={profile.preferredLocale}
-        userId={profile.id}
-      />
+      {readOnly ? (
+        <div className="space-y-2">
+          <div className="font-label text-[0.6875rem] font-black tracking-widest uppercase">
+            {messages.account.preferredLocale}
+          </div>
+          <div className="font-body text-sm text-ink/70">
+            {profile.preferredLocale === "es" ? "Espanol" : "English"}
+          </div>
+        </div>
+      ) : (
+        <LocalePreferenceForm
+          currentLocale={profile.preferredLocale}
+          userId={profile.id}
+        />
+      )}
     </div>
   );
 }

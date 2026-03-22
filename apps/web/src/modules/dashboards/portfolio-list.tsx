@@ -31,6 +31,7 @@ interface PortfolioListProps {
   onCreate: () => void;
   onEdit: (portfolio: PortfolioRow) => void;
   onDelete: (id: string) => void;
+  readOnly?: boolean;
 }
 
 export function PortfolioList({
@@ -41,6 +42,7 @@ export function PortfolioList({
   onCreate,
   onEdit,
   onDelete,
+  readOnly = false,
 }: PortfolioListProps) {
   const { messages } = useLocale();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -74,9 +76,10 @@ export function PortfolioList({
         </h2>
         <button
           onClick={onCreate}
-          className="bg-primary text-white px-6 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors"
+          disabled={readOnly}
+          className="bg-primary text-white px-6 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {messages.workspace.createPortfolio}
+          {readOnly ? "Demo view" : messages.workspace.createPortfolio}
         </button>
       </div>
 
@@ -160,7 +163,8 @@ export function PortfolioList({
                       e.stopPropagation();
                       onEdit(portfolio);
                     }}
-                    className="border border-ink px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-ink hover:bg-ink hover:text-white transition-colors"
+                    disabled={readOnly}
+                    className="border border-ink px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {messages.workspace.editPortfolio}
                   </button>
@@ -171,7 +175,8 @@ export function PortfolioList({
                         onDelete(portfolio.id);
                         setConfirmDeleteId(null);
                       }}
-                      className="bg-primary text-white px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors"
+                      disabled={readOnly}
+                      className="bg-primary text-white px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {messages.workspace.confirmDelete}
                     </button>
@@ -181,7 +186,8 @@ export function PortfolioList({
                         e.stopPropagation();
                         setConfirmDeleteId(portfolio.id);
                       }}
-                      className="border border-primary px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-colors"
+                      disabled={readOnly}
+                      className="border border-primary px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {messages.workspace.deletePortfolio}
                     </button>

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { SupportedLocale } from "@querencia/core-domain";
 import { createClient } from "@/lib/supabase/client";
+import { DEMO_MODE } from "@/lib/demo-fixtures";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { useLocale } from "@/i18n/locale-context";
 
 interface LocalePreferenceFormProps {
@@ -17,10 +19,14 @@ export function LocalePreferenceForm({
   const { messages } = useLocale();
   const [selected, setSelected] = useState<SupportedLocale>(currentLocale);
   const [saving, setSaving] = useState(false);
-  const supabase = createClient();
 
   const handleSave = async () => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      return;
+    }
+
     setSaving(true);
+    const supabase = createClient();
     await supabase
       .from("profiles")
       .update({ preferred_locale: selected })
@@ -50,10 +56,14 @@ export function LocalePreferenceForm({
       </div>
       <button
         onClick={handleSave}
-        disabled={saving}
+        disabled={saving || DEMO_MODE || !hasSupabaseConfig()}
         className="bg-primary text-white px-6 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors disabled:opacity-50"
       >
-        {saving ? "\u2026" : messages.account.save}
+        {DEMO_MODE || !hasSupabaseConfig()
+          ? messages.account.preferredLocale
+          : saving
+            ? "\u2026"
+            : messages.account.save}
       </button>
     </div>
   );

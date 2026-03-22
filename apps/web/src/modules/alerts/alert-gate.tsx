@@ -2,6 +2,7 @@
 
 import type { MemberProfile } from "@querencia/contracts";
 import { canAccess } from "@querencia/authz";
+import { DEMO_MODE } from "@/lib/demo-fixtures";
 import { useLocale } from "@/i18n/locale-context";
 import Link from "next/link";
 
@@ -12,7 +13,7 @@ interface AlertGateProps {
 
 export function AlertGate({ profile, children }: AlertGateProps) {
   const { locale, messages } = useLocale();
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const demoMode = DEMO_MODE;
 
   if (!profile && !demoMode) {
     return (

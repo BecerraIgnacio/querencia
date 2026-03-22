@@ -29,6 +29,7 @@ interface PortfolioDetailProps {
   assignedAreas: WatchAreaRow[];
   unassignedAreas: WatchAreaRow[];
   onRefresh: () => void;
+  readOnly?: boolean;
 }
 
 export function PortfolioDetail({
@@ -36,6 +37,7 @@ export function PortfolioDetail({
   assignedAreas,
   unassignedAreas,
   onRefresh,
+  readOnly = false,
 }: PortfolioDetailProps) {
   const { messages } = useLocale();
   const [showAssign, setShowAssign] = useState(false);
@@ -53,6 +55,7 @@ export function PortfolioDetail({
   const totalZones = regionSet.size;
 
   const handleUnassign = async (watchAreaId: string) => {
+    if (readOnly) return;
     const supabase = createClient();
     await supabase
       .from("watch_areas")
@@ -62,6 +65,7 @@ export function PortfolioDetail({
   };
 
   const handleAssign = async (watchAreaId: string) => {
+    if (readOnly) return;
     const supabase = createClient();
     await supabase
       .from("watch_areas")
@@ -146,9 +150,10 @@ export function PortfolioDetail({
           </h3>
           <button
             onClick={() => setShowAssign(!showAssign)}
-            className="border border-ink px-4 py-2 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-ink hover:bg-ink hover:text-white transition-colors"
+            disabled={readOnly}
+            className="border border-ink px-4 py-2 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {messages.workspace.assignAreas}
+            {readOnly ? "Demo view" : messages.workspace.assignAreas}
           </button>
         </div>
 
@@ -184,7 +189,8 @@ export function PortfolioDetail({
                 </div>
                 <button
                   onClick={() => handleUnassign(area.id)}
-                  className="shrink-0 border border-primary px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-colors"
+                  disabled={readOnly}
+                  className="shrink-0 border border-primary px-3 py-1.5 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   &times;
                 </button>

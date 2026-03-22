@@ -3,10 +3,14 @@
  * to bypass Supabase auth and render pages as a coordinator user.
  */
 
-import type { MemberProfile } from "@querencia/contracts";
-import { makeRegionId, makeVeterinaryNetworkId } from "@querencia/core-domain";
+import type { Alert, MemberProfile } from "@querencia/contracts";
+import {
+  makeDiseaseId,
+  makeRegionId,
+  makeVeterinaryNetworkId,
+} from "@querencia/core-domain";
 
-export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+export const DEMO_MODE = true;
 
 const now = new Date().toISOString();
 
@@ -65,5 +69,44 @@ export const DEMO_WATCH_AREAS = [
     is_active: true,
     created_at: now,
     updated_at: now,
+  },
+];
+
+export const DEMO_ALERTS: Alert[] = [
+  {
+    id: "demo-alert-entre-rios-ai",
+    userId: DEMO_PROFILE.id,
+    watchAreaId: DEMO_WATCH_AREAS[0].id,
+    diseaseId: makeDiseaseId("avian_influenza"),
+    animalType: "avian",
+    severity: "critical",
+    source: "verified_veterinarian",
+    confidenceStatus: "screened",
+    titleEn: "Avian influenza acceleration in Entre Rios",
+    titleEs: "Aceleracion de influenza aviar en Entre Rios",
+    messageEn: "Verified field signals and recent regional activity justify immediate follow-up.",
+    messageEs: "Senales de campo verificadas y actividad regional reciente justifican seguimiento inmediato.",
+    regionId: makeRegionId("ar-entre-rios"),
+    triggeredAt: now,
+    read: false,
+    createdAt: now,
+  },
+  {
+    id: "demo-alert-buenos-aires-watch",
+    userId: DEMO_PROFILE.id,
+    watchAreaId: DEMO_WATCH_AREAS[1].id,
+    diseaseId: makeDiseaseId("avian_influenza"),
+    animalType: "avian",
+    severity: "high",
+    source: "official_confirmed",
+    confidenceStatus: "confirmed",
+    titleEn: "Keep Buenos Aires on elevated watch",
+    titleEs: "Mantener Buenos Aires en vigilancia elevada",
+    messageEn: "Official confirmation plus persistent signal density suggests continued monitoring.",
+    messageEs: "La confirmacion oficial y la densidad sostenida de senales sugieren monitoreo continuo.",
+    regionId: makeRegionId("ar-buenos-aires"),
+    triggeredAt: now,
+    read: true,
+    createdAt: now,
   },
 ];

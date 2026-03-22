@@ -33,11 +33,13 @@ interface WatchAreaRow {
 interface PortfolioWorkspaceProps {
   initialPortfolios: PortfolioRow[];
   initialWatchAreas: WatchAreaRow[];
+  readOnly?: boolean;
 }
 
 export function PortfolioWorkspace({
   initialPortfolios,
   initialWatchAreas,
+  readOnly = false,
 }: PortfolioWorkspaceProps) {
   const { messages } = useLocale();
   const [portfolios, setPortfolios] = useState(initialPortfolios);
@@ -53,6 +55,7 @@ export function PortfolioWorkspace({
   const activeWatchAreas = watchAreas.filter((area) => area.is_active);
 
   const refresh = useCallback(async () => {
+    if (readOnly) return;
     const supabase = createClient();
     const {
       data: { user },
@@ -79,11 +82,13 @@ export function PortfolioWorkspace({
   const handleSelect = (id: string) => setSelectedId(id);
 
   const handleCreate = () => {
+    if (readOnly) return;
     setEditingPortfolio(null);
     setShowForm(true);
   };
 
   const handleEdit = (portfolio: PortfolioRow) => {
+    if (readOnly) return;
     setEditingPortfolio(portfolio);
     setShowForm(true);
   };
@@ -100,6 +105,7 @@ export function PortfolioWorkspace({
   };
 
   const handleDelete = async (id: string) => {
+    if (readOnly) return;
     const supabase = createClient();
     /* Unassign watch areas first */
     await supabase
@@ -182,6 +188,7 @@ export function PortfolioWorkspace({
             onCreate={handleCreate}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            readOnly={readOnly}
           />
         </div>
 
@@ -193,6 +200,7 @@ export function PortfolioWorkspace({
               assignedAreas={assignedAreas}
               unassignedAreas={unassignedAreas}
               onRefresh={refresh}
+              readOnly={readOnly}
             />
           ) : (
             <div className="border border-ink border-dashed p-12 text-center">

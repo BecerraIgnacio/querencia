@@ -2,6 +2,7 @@
 
 import type { PlanName } from "@querencia/core-domain";
 import { canAccess } from "@querencia/authz";
+import { DEMO_MODE } from "@/lib/demo-fixtures";
 import { useLocale } from "@/i18n/locale-context";
 import Link from "next/link";
 
@@ -12,6 +13,10 @@ interface DashboardGateProps {
 
 export function DashboardGate({ planName, children }: DashboardGateProps) {
   const { locale, messages } = useLocale();
+
+  if (DEMO_MODE) {
+    return <>{children}</>;
+  }
 
   if (!canAccess(planName, "canAccessDashboards")) {
     return (

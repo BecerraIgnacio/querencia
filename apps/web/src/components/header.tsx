@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useLocale } from "@/i18n/locale-context";
 import { LocaleSwitcher } from "./locale-switcher";
-import { UserCircle2 } from "lucide-react";
 
 export function Header() {
   const { locale, messages } = useLocale();
@@ -70,9 +69,6 @@ export function Header() {
       </div>
       <div className="flex items-center gap-4">
         <LocaleSwitcher />
-        <Link href={`/${locale}/account`} className="hover:text-primary transition-colors">
-          <UserCircle2 size={24} strokeWidth={1.5} />
-        </Link>
       </div>
     </header>
   );

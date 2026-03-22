@@ -1,6 +1,8 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { DEMO_MODE } from "@/lib/demo-fixtures";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { useLocale } from "@/i18n/locale-context";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +13,11 @@ interface AuthButtonProps {
 export function AuthButton({ isAuthenticated }: AuthButtonProps) {
   const { locale, messages } = useLocale();
   const router = useRouter();
+
+  if (DEMO_MODE || !hasSupabaseConfig()) {
+    return null;
+  }
+
   const supabase = createClient();
 
   const handleSignIn = async () => {

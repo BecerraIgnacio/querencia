@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import type { MemberProfile, ReportStatus } from "@querencia/contracts";
 import type { DiseaseId } from "@querencia/core-domain";
 import { useLocale } from "@/i18n/locale-context";
+import { DEMO_MODE } from "@/lib/demo-fixtures";
 import { createClient } from "@/lib/supabase/client";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { SEED_DISEASES } from "@/data/seed-diseases";
 import { WATCH_REGION_OPTIONS } from "@/data/seed-map-data";
 import { ReportSuccess } from "./report-success";
@@ -43,6 +45,11 @@ export function ReportForm({ profile }: ReportFormProps) {
     setError(null);
 
     try {
+      if (DEMO_MODE || !hasSupabaseConfig()) {
+        setSuccessStatus("submitted");
+        return;
+      }
+
       const supabase = createClient();
       const {
         data: { user },

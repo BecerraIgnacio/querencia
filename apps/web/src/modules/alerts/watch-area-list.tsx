@@ -10,12 +10,14 @@ interface WatchAreaListProps {
   watchAreas: WatchArea[];
   maxWatchAreas: number;
   onRefresh: () => void;
+  readOnly?: boolean;
 }
 
 export function WatchAreaList({
   watchAreas,
   maxWatchAreas,
   onRefresh,
+  readOnly = false,
 }: WatchAreaListProps) {
   const { messages } = useLocale();
   const [showForm, setShowForm] = useState(false);
@@ -25,6 +27,9 @@ export function WatchAreaList({
   const atMax = watchAreas.length >= maxWatchAreas;
 
   const handleToggleActive = async (area: WatchArea) => {
+    if (readOnly) {
+      return;
+    }
     const supabase = createClient();
     await supabase
       .from("watch_areas")
@@ -37,6 +42,9 @@ export function WatchAreaList({
   };
 
   const handleDelete = async (id: string) => {
+    if (readOnly) {
+      return;
+    }
     const supabase = createClient();
     await supabase.from("watch_areas").delete().eq("id", id);
     setConfirmDeleteId(null);
@@ -60,6 +68,9 @@ export function WatchAreaList({
   };
 
   const handleAdd = () => {
+    if (readOnly) {
+      return;
+    }
     setEditingArea(undefined);
     setShowForm(true);
   };
@@ -87,11 +98,11 @@ export function WatchAreaList({
         </div>
         <button
           onClick={handleAdd}
-          disabled={atMax}
+          disabled={atMax || readOnly}
           className="bg-primary text-white px-6 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           title={atMax ? messages.alerts.maxReached : undefined}
         >
-          {messages.alerts.addWatchArea}
+          {readOnly ? "Demo view" : messages.alerts.addWatchArea}
         </button>
       </div>
 
@@ -151,16 +162,18 @@ export function WatchAreaList({
                 <div className="grid gap-2 sm:grid-cols-3 md:w-auto">
                   <button
                     onClick={() => handleToggleActive(area)}
+                    disabled={readOnly}
                     className={`px-4 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] border transition-colors ${
                       area.isActive
                         ? "bg-ink text-white border-ink"
                         : "border-ink text-ink/50 hover:bg-ink hover:text-white"
-                    }`}
+                    } disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
                     {messages.alerts.watchAreaActive}
                   </button>
                   <button
                     onClick={() => handleEdit(area)}
+                    disabled={readOnly}
                     className="border border-ink px-4 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-ink hover:bg-ink hover:text-white transition-colors"
                   >
                     {messages.alerts.editWatchArea}
@@ -168,6 +181,7 @@ export function WatchAreaList({
                   {confirmDeleteId === area.id ? (
                     <button
                       onClick={() => handleDelete(area.id)}
+                      disabled={readOnly}
                       className="bg-primary text-white px-4 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] hover:bg-ink transition-colors"
                     >
                       {messages.alerts.confirmDelete}
@@ -175,6 +189,7 @@ export function WatchAreaList({
                   ) : (
                     <button
                       onClick={() => setConfirmDeleteId(area.id)}
+                      disabled={readOnly}
                       className="border border-primary px-4 py-3 font-label text-[0.6875rem] font-bold uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-colors"
                     >
                       {messages.alerts.delete}

@@ -4,28 +4,36 @@ import { useState, useEffect, useCallback } from "react";
 import type { MemberProfile, Alert, LocalizedAlert, WatchArea } from "@querencia/contracts";
 import { localizeAlert } from "@querencia/contracts";
 import { getEntitlements } from "@querencia/authz";
+import { DEMO_ALERTS, DEMO_MODE } from "@/lib/demo-fixtures";
 import { useLocale } from "@/i18n/locale-context";
 import { createClient } from "@/lib/supabase/client";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { AlertList } from "./alert-list";
 import { WatchAreaList } from "./watch-area-list";
 
 interface AlertCenterPageProps {
   profile: MemberProfile | null;
+  initialWatchAreas?: WatchArea[];
 }
 
 type Tab = "alerts" | "watchAreas";
 
-export function AlertCenterPage({ profile }: AlertCenterPageProps) {
+export function AlertCenterPage({ profile, initialWatchAreas = [] }: AlertCenterPageProps) {
   const { locale, messages } = useLocale();
   const [activeTab, setActiveTab] = useState<Tab>("alerts");
-  const [alerts, setAlerts] = useState<LocalizedAlert[]>([]);
-  const [watchAreas, setWatchAreas] = useState<WatchArea[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState<LocalizedAlert[]>(
+    DEMO_MODE ? DEMO_ALERTS.map((alert) => localizeAlert(alert, locale)) : [],
+  );
+  const [watchAreas, setWatchAreas] = useState<WatchArea[]>(initialWatchAreas);
+  const [loading, setLoading] = useState(!DEMO_MODE);
 
   const planName = profile?.planName ?? "public";
   const entitlements = getEntitlements(planName);
 
   const fetchAlerts = useCallback(async () => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      return;
+    }
     const supabase = createClient();
     const { data } = await supabase
       .from("alerts")
@@ -59,6 +67,9 @@ export function AlertCenterPage({ profile }: AlertCenterPageProps) {
   }, [locale]);
 
   const fetchWatchAreas = useCallback(async () => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      return;
+    }
     const supabase = createClient();
     const { data } = await supabase
       .from("watch_areas")
@@ -89,10 +100,20 @@ export function AlertCenterPage({ profile }: AlertCenterPageProps) {
   }, [fetchAlerts, fetchWatchAreas]);
 
   useEffect(() => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      setLoading(false);
+      return;
+    }
     fetchAll();
   }, [fetchAll]);
 
   const handleMarkRead = async (id: string) => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, read: true } : a)),
+      );
+      return;
+    }
     const supabase = createClient();
     await supabase.from("alerts").update({ read: true }).eq("id", id);
     setAlerts((prev) =>
@@ -101,6 +122,10 @@ export function AlertCenterPage({ profile }: AlertCenterPageProps) {
   };
 
   const handleMarkAllRead = async () => {
+    if (DEMO_MODE || !hasSupabaseConfig()) {
+      setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+      return;
+    }
     const supabase = createClient();
     const unreadIds = alerts.filter((a) => !a.read).map((a) => a.id);
     if (unreadIds.length === 0) return;
@@ -199,6 +224,7 @@ export function AlertCenterPage({ profile }: AlertCenterPageProps) {
           watchAreas={watchAreas}
           maxWatchAreas={entitlements.maxWatchAreas}
           onRefresh={fetchAll}
+          readOnly={DEMO_MODE || !hasSupabaseConfig()}
         />
       )}
     </div>

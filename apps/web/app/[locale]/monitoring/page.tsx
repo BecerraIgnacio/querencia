@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "@querencia/core-domain";
+import type { AnimalType, SupportedLocale } from "@querencia/core-domain";
 import { createClient } from "@/lib/supabase/server";
 import { DEMO_MODE, DEMO_PORTFOLIOS, DEMO_PROFILE, DEMO_WATCH_AREAS } from "@/lib/demo-fixtures";
 import { getMessages } from "@/i18n/get-messages";
@@ -139,7 +139,20 @@ export default async function MonitoringRoute({ params }: MonitoringRouteProps) 
                 {messages.monitoring.alertsSubtitle}
               </p>
             </div>
-            <AlertCenterPage profile={memberProfile} />
+            <AlertCenterPage
+              profile={memberProfile}
+              initialWatchAreas={watchAreas.map((area) => ({
+                id: area.id,
+                userId: area.user_id,
+                label: area.label,
+                animalTypes: area.animal_types as AnimalType[],
+                regionIds: area.region_ids ?? [],
+                portfolioId: area.portfolio_id ?? undefined,
+                isActive: area.is_active,
+                createdAt: area.created_at,
+                updatedAt: area.updated_at,
+              }))}
+            />
           </section>
 
           {memberProfile?.planName === "coordinator" && (
@@ -155,6 +168,7 @@ export default async function MonitoringRoute({ params }: MonitoringRouteProps) 
               <PortfolioWorkspace
                 initialPortfolios={portfolios}
                 initialWatchAreas={watchAreas}
+                readOnly={DEMO_MODE || !hasSupabaseConfig()}
               />
             </section>
           )}
