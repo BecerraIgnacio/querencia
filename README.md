@@ -1,102 +1,34 @@
 # Querencia
 
-Querencia is a bilingual veterinary surveillance platform focused on avian disease reporting, regional risk visibility, and response coordination.
+Querencia is a bilingual veterinary surveillance platform for early avian outbreak detection and response.
 
-The current product is designed around veterinarians:
+It is built for veterinarians and veterinary networks that need to:
 
-- confidential avian signal intake
-- disease intelligence briefs
-- regional outbreak mapping
-- alerting and watch regions
-- response dashboards for veterinary networks
+- capture field observations quickly
+- escalate suspicious avian disease signals safely
+- preserve farm confidentiality
+- understand where regional risk is intensifying
+- coordinate follow-up before an outbreak spreads further
 
-## Stack
+## What Querencia Is For
 
-- Next.js 14
-- React 18
-- TypeScript
-- Tailwind CSS
-- pnpm workspaces
-- Turbo monorepo
+In animal health, the earliest warning sign usually appears in the field, not in a national dashboard. A veterinarian sees unusual mortality, respiratory distress, a production drop, or a suspicious cluster. The problem is that this signal is often delayed, fragmented, or never escalated because reporting pathways are slow and exposing farm identity carries risk.
 
-## Monorepo Layout
+Querencia turns that early veterinary observation into structured outbreak intelligence.
 
-- `apps/web`: main Next.js application
-- `packages/core-domain`: shared domain types and helpers
-- `packages/contracts`: shared API and UI contracts
-- `packages/authz`: plan and entitlement logic
-- `packages/map-hex`: hex and territory utilities
-- `services/pipeline`: Python data pipeline modules
+The product combines:
 
-## Local Development
+- confidential avian signal reporting by verified veterinarians
+- disease-specific intelligence briefs for triage and field context
+- privacy-safe regional aggregation instead of farm-level exposure
+- trend dashboards and predictive outlooks for network review
+- alerts, watch regions, and response coordination for veterinary teams
 
-From the repo root:
+The current demo is focused on avian surveillance. The strongest workflow is:
 
-```bash
-pnpm install
-pnpm --filter @querencia/web dev
-```
+1. a veterinarian submits an avian signal with disease, region, evidence, and case estimate
+2. the platform keeps confidence and source quality visible
+3. signals are aggregated to a regional layer to protect confidentiality
+4. dashboards, alerts, and response boards help the network decide where to act first
 
-Open:
-
-```text
-http://localhost:3000
-```
-
-Useful routes:
-
-- `/en`
-- `/en/avian`
-- `/en/avian/avian_influenza`
-- `/en/report`
-- `/en/dashboard`
-- `/en/monitoring`
-
-## Environment Variables
-
-Create `apps/web/.env.local` with:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_DEMO_MODE=false
-```
-
-Reference template:
-
-- `apps/web/.env.example`
-
-## Build
-
-```bash
-pnpm turbo build
-```
-
-## Vercel
-
-Recommended Vercel settings:
-
-- Framework Preset: `Next.js`
-- Root Directory: `apps/web`
-- Install Command: `pnpm install --frozen-lockfile`
-- Build Command: `cd ../.. && pnpm turbo build --filter=@querencia/web...`
-- Output Directory: `.next`
-
-Environment variables required in Vercel:
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `NEXT_PUBLIC_DEMO_MODE`
-
-## Current Product Direction
-
-Querencia is being shaped as a biotech and veterinary intelligence product rather than a generic dashboard. The strongest current workflow is:
-
-1. a verified veterinarian reports an avian signal
-2. the system preserves privacy through regional aggregation
-3. disease context and risk views support triage
-4. alerts and response boards help networks coordinate follow-up
-
-## Status
-
-This repository currently contains the web app, shared TypeScript packages, and the Python pipeline modules. Local Supabase project scaffolding has been removed for now.
+This makes Querencia useful both as a biotech hackathon demo and as the foundation for a real veterinary intelligence product.
