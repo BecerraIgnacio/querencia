@@ -1,0 +1,29 @@
+.section {
+  padding: 2.75rem;
+  background: var(--color-ink);
+  color: white;
+}
+
+.heading {
+  font-family: var(--font-headline);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-style: italic;
+  margin: 0 0 1.4rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.item {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  opacity: 0.8;
+}

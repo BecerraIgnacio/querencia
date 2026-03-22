@@ -1,0 +1,23 @@
+node_modules/
+.turbo/
+.next/
+dist/
+build/
+.cache/
+.env
+.env.*
+!.env.example
+.vercel/
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+.claude/
+CLAUDE.md
+stitch.zip
+image.png
+image copy.png
+Gemini_Generated_Image_7nbhjr7nbhjr7nbh.png

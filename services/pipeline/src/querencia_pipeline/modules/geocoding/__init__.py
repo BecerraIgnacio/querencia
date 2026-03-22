@@ -1,0 +1,2 @@
+"""Georeferencing and territorial mapping."""
+

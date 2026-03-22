@@ -1,0 +1,46 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "noEmit": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@querencia/core-domain": [
+        "../../packages/core-domain/src/index.ts"
+      ],
+      "@querencia/contracts": [
+        "../../packages/contracts/src/index.ts"
+      ],
+      "@querencia/authz": [
+        "../../packages/authz/src/index.ts"
+      ],
+      "@querencia/map-hex": [
+        "../../packages/map-hex/src/index.ts"
+      ]
+    },
+    "resolveJsonModule": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

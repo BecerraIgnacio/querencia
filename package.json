@@ -1,0 +1,25 @@
+{
+  "name": "querencia",
+  "private": true,
+  "packageManager": "pnpm@10.6.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npx pnpm@10.6.2 --filter @querencia/web dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "context:plan": "./scripts/plan-context.sh",
+    "plans:ready": "./scripts/list-runnable-plans.sh --ready",
+    "plans:all": "./scripts/list-runnable-plans.sh --all",
+    "check:plans": "for f in docs/plans/P-000-runtime-foundation.md $(find docs/plans/mvp1 docs/plans/mvp2 docs/plans/mvp3 docs/plans/mvp4 -type f -name '*.md' ! -name 'index.md'); do ./scripts/validate-plan.sh \"$f\" || exit 1; done",
+    "check:inventories": "for f in $(find docs/plans/mvp1 -type f -name 'M1-*.md'); do ./scripts/validate-resource-inventory.sh \"$f\" || exit 1; done"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

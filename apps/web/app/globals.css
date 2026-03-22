@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;0,6..72,800;1,6..72,400&family=Public+Sans:wght@300;400;600;700;900&display=swap');
+
+:root {
+  --color-bone: #F6F1E8;
+  --color-ink: #111111;
+  --color-red: #D72626;
+  --color-red-dark: #B20011;
+  --color-surface-container: #F2EDE4;
+  --color-surface-high: #ECE8DF;
+  --color-surface-highest: #E7E2D9;
+  --color-outline: #916F6B;
+  --color-bovine: #6E4BD8;
+  --color-porcine: #D97A9A;
+  --color-avian: #C9A200;
+  --color-sheep: #3C7BEA;
+  --font-headline: 'Newsreader', serif;
+  --font-body: 'Public Sans', sans-serif;
+  --border-thin: 1px solid #111111;
+  --sidebar-width: 16rem;
+  --app-header-height: 5rem;
+  --app-mobile-nav-height: 4.5rem;
+}
+
+* {
+  border-radius: 0 !important;
+}
+
+html {
+  height: 100%;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  background-color: var(--color-bone);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-red);
+  color: white;
+}
+
+/* Editorial section divider */
+.editorial-divider {
+  height: 1px;
+  background-color: var(--color-ink);
+  width: 100%;
+}
+
+/* Leaflet map shell */
+.leaflet-container {
+  background-color: #aeb3b8 !important;
+  z-index: 0 !important;
+}
+
+/* Turn imagery into a dark editorial basemap: dark land, gray water, visible terrain texture. */
+.leaflet-satellite-map {
+  position: relative;
+  isolation: isolate;
+}
+
+.leaflet-satellite-map .leaflet-tile-pane {
+  filter: grayscale(1) brightness(1.08) contrast(1.45);
+  opacity: 1;
+}
+
+.leaflet-satellite-map .leaflet-tile {
+  outline: 1px solid transparent;
+}
+
+.leaflet-satellite-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  pointer-events: none;
+  z-index: 250;
+}
+
+.province-tooltip {
+  background: rgba(246, 241, 232, 0.96) !important;
+  border: 1px solid #111111 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #111111 !important;
+  padding: 0.4rem 0.55rem !important;
+}
+
+.province-tooltip::before {
+  display: none !important;
+}
+
+/* Clean up leaflet controls to match editorial style */
+.leaflet-control-zoom a {
+  background-color: var(--color-bone) !important;
+  border-color: #111111 !important;
+  color: #111111 !important;
+  border-radius: 0 !important;
+}
+
+.leaflet-control-attribution {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-size: 0.625rem !important;
+}
+
+.leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
