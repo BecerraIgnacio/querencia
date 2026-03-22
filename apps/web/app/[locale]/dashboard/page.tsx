@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DEMO_MODE } from "@/lib/demo-fixtures";
 import { getMessages } from "@/i18n/get-messages";
 import { coercePlanName } from "@/lib/access";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { AuthButton } from "@/modules/account-plan/auth-button";
 import { DashboardGate } from "@/modules/dashboards/dashboard-gate";
 import { PlusDashboard } from "@/modules/dashboards/plus-dashboard";
@@ -17,10 +18,31 @@ interface DashboardRouteProps {
 export default async function DashboardRoute({ params }: DashboardRouteProps) {
   const locale = (params.locale === "en" ? "en" : "es") as SupportedLocale;
   const messages = getMessages(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const supabaseConfigured = hasSupabaseConfig();
+  let user: { id: string } | null = null;
+  let planName = coercePlanName(null, DEMO_MODE ? "coordinator" : "public");
+
+  if (supabaseConfigured) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      user = authUser;
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        planName = coercePlanName(profile?.plan_name, profile?.access_tier);
+      }
+    } catch {
+      user = null;
+    }
+  }
 
   if (!user && !DEMO_MODE) {
     return (
@@ -37,36 +59,24 @@ export default async function DashboardRoute({ params }: DashboardRouteProps) {
     );
   }
 
-  let planName = coercePlanName(null, DEMO_MODE ? "coordinator" : "public");
-
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    planName = coercePlanName(profile?.plan_name, profile?.access_tier);
-
-    if (planName === "public") {
-      return (
-        <div className="max-w-6xl mx-auto px-7 md:px-14 py-14 flex flex-col items-center gap-8">
-          <h1 className="font-headline text-5xl font-extrabold tracking-tighter">
-            {messages.dashboard.title}
-          </h1>
-          <div className="h-px bg-ink w-full max-w-sm" />
-          <p className="font-label text-[0.6875rem] font-bold uppercase tracking-widest opacity-60">
-            {messages.dashboard.requiresPlan}
-          </p>
-          <Link
-            href={`/${locale}/account`}
-            className="text-primary font-label text-[0.6875rem] font-bold uppercase tracking-widest hover:underline"
-          >
-            {messages.account.requestNetworkAccess}
-          </Link>
-        </div>
-      );
-    }
+  if (user && planName === "public") {
+    return (
+      <div className="max-w-6xl mx-auto px-7 md:px-14 py-14 flex flex-col items-center gap-8">
+        <h1 className="font-headline text-5xl font-extrabold tracking-tighter">
+          {messages.dashboard.title}
+        </h1>
+        <div className="h-px bg-ink w-full max-w-sm" />
+        <p className="font-label text-[0.6875rem] font-bold uppercase tracking-widest opacity-60">
+          {messages.dashboard.requiresPlan}
+        </p>
+        <Link
+          href={`/${locale}/account`}
+          className="text-primary font-label text-[0.6875rem] font-bold uppercase tracking-widest hover:underline"
+        >
+          {messages.account.requestNetworkAccess}
+        </Link>
+      </div>
+    );
   }
 
   return (

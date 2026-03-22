@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DEMO_MODE, DEMO_PORTFOLIOS, DEMO_PROFILE, DEMO_WATCH_AREAS } from "@/lib/demo-fixtures";
 import { getMessages } from "@/i18n/get-messages";
 import { coerceNetworkRole, coercePlanName, coerceVerifiedVeterinarian } from "@/lib/access";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { AlertGate } from "@/modules/alerts/alert-gate";
 import { AlertCenterPage } from "@/modules/alerts/alert-center-page";
 import { PortfolioWorkspace } from "@/modules/dashboards/portfolio-workspace";
@@ -15,57 +16,64 @@ interface MonitoringRouteProps {
 export default async function MonitoringRoute({ params }: MonitoringRouteProps) {
   const locale = (params.locale === "en" ? "en" : "es") as SupportedLocale;
   const messages = getMessages(locale);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   let memberProfile: MemberProfile | null = DEMO_MODE ? DEMO_PROFILE : null;
   let portfolios: typeof DEMO_PORTFOLIOS = DEMO_MODE ? DEMO_PORTFOLIOS : [];
   let watchAreas: typeof DEMO_WATCH_AREAS = DEMO_MODE ? DEMO_WATCH_AREAS : [];
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+  if (hasSupabaseConfig()) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (profile) {
-      const planName = coercePlanName(profile.plan_name, profile.access_tier);
-      memberProfile = {
-        id: profile.id,
-        displayName: profile.display_name ?? null,
-        preferredLocale: (profile.preferred_locale ?? "es") as SupportedLocale,
-        planName,
-        networkRole: coerceNetworkRole(profile.network_role, planName),
-        isVerifiedVeterinarian: coerceVerifiedVeterinarian(
-          profile.is_verified_veterinarian,
-          planName,
-        ),
-        veterinaryNetworkId: profile.veterinary_network_id ?? null,
-        veterinaryNetworkName: profile.veterinary_network_name ?? null,
-        createdAt: profile.created_at,
-        updatedAt: profile.updated_at,
-      };
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
 
-      if (planName === "coordinator") {
-        const [{ data: pData }, { data: wData }] = await Promise.all([
-          supabase
-            .from("monitoring_portfolios")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true }),
-          supabase
-            .from("watch_areas")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true }),
-        ]);
+        if (profile) {
+          const planName = coercePlanName(profile.plan_name, profile.access_tier);
+          memberProfile = {
+            id: profile.id,
+            displayName: profile.display_name ?? null,
+            preferredLocale: (profile.preferred_locale ?? "es") as SupportedLocale,
+            planName,
+            networkRole: coerceNetworkRole(profile.network_role, planName),
+            isVerifiedVeterinarian: coerceVerifiedVeterinarian(
+              profile.is_verified_veterinarian,
+              planName,
+            ),
+            veterinaryNetworkId: profile.veterinary_network_id ?? null,
+            veterinaryNetworkName: profile.veterinary_network_name ?? null,
+            createdAt: profile.created_at,
+            updatedAt: profile.updated_at,
+          };
 
-        portfolios = pData ?? [];
-        watchAreas = wData ?? [];
+          if (planName === "coordinator") {
+            const [{ data: pData }, { data: wData }] = await Promise.all([
+              supabase
+                .from("monitoring_portfolios")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: true }),
+              supabase
+                .from("watch_areas")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: true }),
+            ]);
+
+            portfolios = pData ?? [];
+            watchAreas = wData ?? [];
+          }
+        }
       }
+    } catch {
+      // Fall back to demo or gated UI instead of crashing the route.
     }
   }
 

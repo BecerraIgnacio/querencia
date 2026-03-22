@@ -1,7 +1,9 @@
 import type { SupportedLocale } from "@querencia/core-domain";
 import { createClient } from "@/lib/supabase/server";
+import { DEMO_MODE, DEMO_PROFILE } from "@/lib/demo-fixtures";
 import { getMessages } from "@/i18n/get-messages";
 import { coerceNetworkRole, coercePlanName, coerceVerifiedVeterinarian } from "@/lib/access";
+import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { ReportGate } from "@/modules/reporting/report-gate";
 import { ReportForm } from "@/modules/reporting/report-form";
 import type { MemberProfile } from "@querencia/contracts";
@@ -13,38 +15,43 @@ interface ReportRouteProps {
 export default async function ReportRoute({ params }: ReportRouteProps) {
   const locale = (params.locale === "en" ? "en" : "es") as SupportedLocale;
   const messages = getMessages(locale);
-  const supabase = await createClient();
+  let memberProfile: MemberProfile | null = DEMO_MODE ? DEMO_PROFILE : null;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  if (hasSupabaseConfig()) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  let memberProfile: MemberProfile | null = null;
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    if (profile) {
-      const planName = coercePlanName(profile.plan_name, profile.access_tier);
-      memberProfile = {
-        id: profile.id,
-        displayName: profile.display_name ?? null,
-        preferredLocale: (profile.preferred_locale ?? "es") as SupportedLocale,
-        planName,
-        networkRole: coerceNetworkRole(profile.network_role, planName),
-        isVerifiedVeterinarian: coerceVerifiedVeterinarian(
-          profile.is_verified_veterinarian,
-          planName,
-        ),
-        veterinaryNetworkId: profile.veterinary_network_id ?? null,
-        veterinaryNetworkName: profile.veterinary_network_name ?? null,
-        createdAt: profile.created_at,
-        updatedAt: profile.updated_at,
-      };
+        if (profile) {
+          const planName = coercePlanName(profile.plan_name, profile.access_tier);
+          memberProfile = {
+            id: profile.id,
+            displayName: profile.display_name ?? null,
+            preferredLocale: (profile.preferred_locale ?? "es") as SupportedLocale,
+            planName,
+            networkRole: coerceNetworkRole(profile.network_role, planName),
+            isVerifiedVeterinarian: coerceVerifiedVeterinarian(
+              profile.is_verified_veterinarian,
+              planName,
+            ),
+            veterinaryNetworkId: profile.veterinary_network_id ?? null,
+            veterinaryNetworkName: profile.veterinary_network_name ?? null,
+            createdAt: profile.created_at,
+            updatedAt: profile.updated_at,
+          };
+        }
+      }
+    } catch {
+      // Fall back to the gated UI instead of crashing the route.
     }
   }
 
@@ -60,7 +67,7 @@ export default async function ReportRoute({ params }: ReportRouteProps) {
           </p>
           <div className="h-px bg-ink mb-12" />
           <ReportGate profile={memberProfile}>
-            <ReportForm profile={memberProfile!} />
+            <ReportForm profile={memberProfile ?? DEMO_PROFILE} />
           </ReportGate>
         </div>
 
