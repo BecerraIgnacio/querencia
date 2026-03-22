@@ -1,2 +1,0 @@
--- Development seed: no user data seeded (profiles created via trigger on signup)
--- This file is intentionally minimal for MVP1.
